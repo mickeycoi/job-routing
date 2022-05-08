@@ -16,6 +16,10 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -58,6 +62,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const aBC = useAuth();
+  console.log(aBC);
+  let navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -187,13 +196,32 @@ export default function PrimarySearchAppBar() {
           </Search>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "flex", md: "flex" } }}>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
-              <LoginIcon />
-            </IconButton>
+            {!isAuthenticated ? (
+              <IconButton
+                size="large"
+                aria-label="show 4 new mails"
+                color="inherit"
+              >
+                <Link to="/login">
+                  Login
+                  <LoginIcon />
+                </Link>
+              </IconButton>
+            ) : (
+              <IconButton
+                size="large"
+                aria-label="show 4 new mails"
+                color="inherit"
+              >
+                {user.username}
+                <LogoutIcon
+                  sx={{ ml: 2 }}
+                  onClick={() => {
+                    logout(() => navigate("/"));
+                  }}
+                />
+              </IconButton>
+            )}
           </Box>
         </Toolbar>
       </AppBar>

@@ -1,12 +1,6 @@
 import React from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import AuthRequire from "./contexts/AuthRequire";
-import Layout from "./layouts/Layout";
-import HomePage from "./pages/HomePage";
-import JobModal from "./pages/JobModal";
-import LoginModal from "./pages/LoginModal";
-import NotFoundPage from "./pages/NotFoundPage";
+import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import IconButton from "@mui/material/IconButton";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
@@ -16,7 +10,7 @@ import Box from "@mui/material/Box";
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 function MyApp() {
   const theme = useTheme();
-  console.log(theme);
+
   const colorMode = React.useContext(ColorModeContext);
   return (
     <Box
@@ -47,8 +41,7 @@ function MyApp() {
   );
 }
 
-function App() {
-  const location = useLocation();
+function Layout() {
   const [mode, setMode] = React.useState("light");
   const colorMode = React.useMemo(
     () => ({
@@ -68,34 +61,17 @@ function App() {
       }),
     [mode]
   );
-
   return (
     <>
-      <AuthProvider>
-        <Routes location={location.state?.backgroundLocation || location}>
-          <Route element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="/login" element={<HomePage />} />
-            <Route path="/jobs/:id" element={<HomePage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-        <Routes>
-          <Route>
-            <Route path="/login" element={<LoginModal />} />
-            <Route
-              path="/jobs/:id"
-              element={
-                <AuthRequire>
-                  <JobModal />
-                </AuthRequire>
-              }
-            />
-          </Route>
-        </Routes>
-      </AuthProvider>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <Navbar />
+          <MyApp />
+          <Outlet />
+        </ThemeProvider>
+      </ColorModeContext.Provider>
     </>
   );
 }
 
-export default App;
+export default Layout;

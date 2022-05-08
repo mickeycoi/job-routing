@@ -1,14 +1,14 @@
-import * as React from "react";
+import React from "react";
+import { Chip, Grid, Divider } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { Chip, Divider } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Link, useLocation } from "react-router-dom";
 
-export default function JobCard({ job }) {
+function JobCard({ job }) {
+  const location = useLocation();
   return (
     <Grid item xs={12} sm={6} md={4}>
       <Card
@@ -25,15 +25,18 @@ export default function JobCard({ job }) {
             {job.title}
           </Typography>
           <Divider />
+
           {job.skills.slice(0, 4).map((skill) => (
             <Chip
+              key={skill.id}
               label={skill}
               sx={{ mt: 1, mr: 1, backgroundColor: "#ed4a4f", color: "white" }}
             />
           ))}
-
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            {job.description}
+          <Typography variant="body2" color="text.secondary">
+            {job.description.length > 70
+              ? `${job.description.slice(0, 50)}...`
+              : job.description}
           </Typography>
         </CardContent>
         <CardActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -47,10 +50,17 @@ export default function JobCard({ job }) {
               color: "black",
             }}
           >
-            Learn More
+            <Link
+              to={`/jobs/${job.id}`}
+              state={{ backgroundLocation: location }}
+            >
+              Learn More
+            </Link>
           </Button>
         </CardActions>
       </Card>
     </Grid>
   );
 }
+
+export default JobCard;
