@@ -64,7 +64,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function PrimarySearchAppBar() {
   const { isAuthenticated, user, logout } = useAuth();
   const aBC = useAuth();
-  console.log(aBC);
+
   let navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = React.useState(null);

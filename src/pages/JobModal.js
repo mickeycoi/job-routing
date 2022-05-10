@@ -1,9 +1,10 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import apiService from "../app/apiService";
 
 const style = {
   position: "absolute",
@@ -28,6 +29,23 @@ export default function JobModal() {
     setOpen(false);
     navigate(from, { replace: true });
   };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const params = useParams();
+  const [job, setJob] = useState();
+  useEffect(() => {
+    if (params.id) {
+      const getJob = async () => {
+        try {
+          const res = await apiService.get(`/jobs/${params.id}`);
+          setJob(res.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      getJob();
+    }
+  }, [params]);
 
   return (
     <Modal
