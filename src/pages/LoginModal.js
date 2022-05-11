@@ -26,8 +26,8 @@ const style = {
 };
 
 const defaultValues = {
-  username: "",
-  password: "",
+  username: "dat",
+  password: "123",
 };
 
 export default function LoginModal() {

@@ -19,7 +19,9 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@mui/material";
+import SearchJob from "./SearchJob";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -63,8 +65,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function PrimarySearchAppBar() {
   const { isAuthenticated, user, logout } = useAuth();
-  const aBC = useAuth();
-
+  let location = useLocation();
   let navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -185,42 +186,32 @@ export default function PrimarySearchAppBar() {
           >
             Job Routing
           </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
+          <SearchJob />
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "flex", md: "flex" } }}>
             {!isAuthenticated ? (
-              <IconButton
-                size="large"
-                aria-label="show 4 new mails"
+              <Button
                 color="inherit"
+                startIcon={<LoginIcon />}
+                component={Link}
+                to="/login"
+                state={{ backgroundLocation: location }}
               >
-                <Link to="/login">
-                  Login
-                  <LoginIcon />
-                </Link>
-              </IconButton>
+                Sign In
+              </Button>
             ) : (
-              <IconButton
-                size="large"
-                aria-label="show 4 new mails"
+              <Button
                 color="inherit"
+                startIcon={<AccountCircle style={{ width: 34, height: 34 }} />}
+                endIcon={<LogoutIcon />}
+                onClick={() => {
+                  logout(() => navigate("/"));
+                }}
+                state={{ backgroundLocation: location }}
+                style={{ textTransform: "none" }}
               >
                 {user.username}
-                <LogoutIcon
-                  sx={{ ml: 2 }}
-                  onClick={() => {
-                    logout(() => navigate("/"));
-                  }}
-                />
-              </IconButton>
+              </Button>
             )}
           </Box>
         </Toolbar>

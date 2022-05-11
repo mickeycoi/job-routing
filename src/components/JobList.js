@@ -1,11 +1,15 @@
 import { Box, Grid, Pagination } from "@mui/material";
 import React, { useState } from "react";
 import JobCard from "./JobCard";
-
-const limit = 5;
+import { useSearchParams } from "react-router-dom";
 
 function JobList({ jobs }) {
+  const limit = 5;
   const [page, setPage] = useState(1);
+
+  let [searchParams, setSearchParams] = useSearchParams();
+  let filter = searchParams.get("filter");
+
   const handleChange = (event, value) => {
     setPage(value);
   };
@@ -14,13 +18,25 @@ function JobList({ jobs }) {
   return (
     <>
       <Grid container spacing={2}>
-        {jobs &&
-          jobs
-            .slice((page - 1) * limit, page * limit)
-            .map((job) => <JobCard key={job.id} job={job} />)}
+        {filter
+          ? jobs
+              .filter((job) => {
+                if (!filter) return true;
+                let name = job.title.toLowerCase();
+                return name.includes(filter.toLowerCase());
+              })
+              .map((job) => <JobCard key={job.id} job={job} />)
+          : jobs
+              .slice((page - 1) * limit, page * limit)
+              .map((job) => <JobCard key={job.id} job={job} />)}
       </Grid>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Pagination count={pageCount} page={page} onChange={handleChange} />
+        <Pagination
+          count={pageCount}
+          page={page}
+          onChange={handleChange}
+          sx={{ mb: 3, mt: 3 }}
+        />
       </Box>
     </>
   );

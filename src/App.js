@@ -8,6 +8,7 @@ import JobModal from "./pages/JobModal";
 import LoginModal from "./pages/LoginModal";
 import NotFoundPage from "./pages/NotFoundPage";
 import ThemeProvider from "./contexts/ThemeProvider";
+import { CssBaseline } from "@mui/material";
 
 function App() {
   const location = useLocation();
@@ -16,27 +17,27 @@ function App() {
     <>
       <ThemeProvider>
         <AuthProvider>
-          <Routes location={location.state?.backgroundLocation || location}>
-            <Route element={<Layout />}>
-              <Route index element={<HomePage />} />
+          <CssBaseline>
+            <Routes location={location.state?.backgroundLocation || location}>
+              <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<HomePage />} />
               <Route path="/jobs/:id" element={<HomePage />} />
               <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-          <Routes>
-            <Route>
-              <Route path="/login" element={<LoginModal />} />
-              <Route
-                path="/jobs/:id"
-                element={
-                  <AuthRequire>
-                    <JobModal />
-                  </AuthRequire>
-                }
-              />
-            </Route>
-          </Routes>
+            </Routes>
+            <Routes>
+              <Route>
+                <Route path="/login" element={<LoginModal />} />
+                <Route
+                  path="/jobs/:id"
+                  element={
+                    <AuthRequire>
+                      <JobModal />
+                    </AuthRequire>
+                  }
+                />
+              </Route>
+            </Routes>
+          </CssBaseline>
         </AuthProvider>
       </ThemeProvider>
     </>
