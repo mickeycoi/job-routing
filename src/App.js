@@ -18,7 +18,7 @@ function App() {
         <AuthProvider>
           <Routes location={location.state?.backgroundLocation || location}>
             <Route element={<Layout />}>
-              <Route index element={<HomePage />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<HomePage />} />
               <Route path="/jobs/:id" element={<HomePage />} />
               <Route path="*" element={<NotFoundPage />} />

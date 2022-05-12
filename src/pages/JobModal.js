@@ -1,18 +1,35 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import apiService from "../app/apiService";
-import GetJobId from "../components/GetJob";
-import {
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Stack,
-  Typography,
-  Modal,
-} from "@mui/material";
+import { useState, useEffect } from "react";
+import LoadingScreen from "../components/LoadingScreen";
+import { Card, CardContent, Chip, Divider, Stack, Alert } from "@mui/material";
+
+const modalStyle = {
+  position: "absolute",
+  backgroundColor: "#FFF",
+  padding: "15px",
+  zIndex: "1000",
+  width: "100%",
+  borderRadius: 4,
+};
+const overlayStyle = {
+  position: "fixed",
+  display: "flex",
+  justifyContent: "center",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%",
+  height: "65%",
+  backgroundColor: "#fff",
+  zIndex: "1000",
+  borderRadius: 4,
+  overflowY: "auto",
+};
 
 const style = {
   position: "absolute",
@@ -38,33 +55,33 @@ export default function JobModal() {
     navigate(from, { replace: true });
   };
 
-  let params = useParams();
-  let job = GetJobId(params.id);
+  const [job, setJobs] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const params = useParams();
 
-  function onDismiss() {
-    navigate(-1);
-  }
-
-  // const params = useParams();
-  // const [job, setJob] = useState();
-
-  // useEffect(() => {
-  //   const getJob = async () => {
-  //     try {
-  //       const res = await apiService.get(`/jobs/${params.id}`);
-  //       setJob(res.data);
-  //       console.log(res);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //     getJob();
-  //   };
-  // }, [params]);
+  useEffect(() => {
+    if (params.id) {
+      const getJobs = async () => {
+        setLoading(true);
+        try {
+          const res = await apiService.get(`/jobs/${params.id}`);
+          setJobs(res.data);
+          setError("");
+        } catch (error) {
+          console.log(error);
+          setError(error.message);
+        }
+        setLoading(false);
+      };
+      getJobs();
+    }
+  }, [params]);
 
   return (
     <Modal
       open={true}
-      onClose={() => onDismiss()}
+      onClose={() => handleClose()}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
       style={{
@@ -74,78 +91,90 @@ export default function JobModal() {
         justifyContent: "center",
       }}
     >
-      <Card
-        variant="contained"
-        sx={{
-          margin: "auto",
-          width: "700px",
-          display: "flex",
-          textAlign: "center",
-          flexDirection: "column",
-          justifyContent: "space-around",
-        }}
-      >
-        <CardContent>
-          <Typography
-            // sx={{ height: 45 }}
-            color="text.secondary"
-            display={"flex"}
-            textAlign="center"
-            alignItems={"center"}
-            justifyContent="center"
-            textOverflow={"ellipsis"}
-            fontSize={25}
-            gutterBottom
-          >
-            {job.title}
-          </Typography>
-          <Divider />
-          <Typography
-            // color="text.secondary"
-            variant="body2"
-            // height={90}
-            style={{ display: "block" }}
-            padding={1}
-            fontSize={16}
-          >
-            {job.description}
-          </Typography>
-          <Typography
-            // color="text.secondary"
-            variant="body2"
-            style={{ display: "block" }}
-            padding={1}
-            fontSize={16}
-          >
-            Skills:
-          </Typography>
-          <Stack
-            display={"flex"}
-            justifyContent="center"
-            direction="row"
-            spacing={0.5}
-            sx={{ maxHeight: 30, width: "100%" }}
-            overflow="hidden"
-          >
-            {job.skills.map((i) => (
-              <Chip
-                key={i}
-                label={i}
-                style={{ backgroundColor: "#d74742", fontSize: "0.7rem" }}
-                size="small"
-              />
-            ))}
-          </Stack>
-          <Typography
-            variant="body2"
-            style={{ display: "block" }}
-            paddingTop={2}
-            fontSize={16}
-          >
-            City: {job.city}
-          </Typography>
-        </CardContent>
-      </Card>
+      {loading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          {error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : (
+            <>
+              <Card
+                variant="contained"
+                sx={{
+                  margin: "auto",
+                  width: "700px",
+                  display: "flex",
+                  textAlign: "center",
+                  flexDirection: "column",
+                  justifyContent: "space-around",
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    // sx={{ height: 45 }}
+                    color="text.secondary"
+                    display={"flex"}
+                    textAlign="center"
+                    alignItems={"center"}
+                    justifyContent="center"
+                    textOverflow={"ellipsis"}
+                    fontSize={25}
+                    gutterBottom
+                  >
+                    {job.title}
+                  </Typography>
+                  <Divider sx={{ mt: 3, mb: 3 }} />
+                  <Typography>
+                    {job.skills.map((skill, index) => (
+                      <Chip
+                        key={index}
+                        label={skill}
+                        sx={{
+                          mr: 1,
+                          mb: 1,
+                          backgroundColor: "#F0534A",
+                          color: "#fff",
+                          fontSize: 12,
+                          height: 28,
+                        }}
+                      />
+                    ))}
+                  </Typography>
+                  <Typography
+                    // color="text.secondary"
+                    variant="body2"
+                    // height={90}
+                    style={{ display: "block" }}
+                    padding={1}
+                    fontSize={16}
+                  >
+                    {job.description}
+                  </Typography>
+                  <Typography
+                    // color="text.secondary"
+                    variant="body2"
+                    style={{ display: "block" }}
+                    padding={1}
+                    fontSize={16}
+                  >
+                    Skills:
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    style={{ display: "block" }}
+                    paddingTop={2}
+                    fontSize={16}
+                  >
+                    City: {job.city}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </>
+      )}
     </Modal>
   );
 }
