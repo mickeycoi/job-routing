@@ -1,21 +1,34 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import apiService from "../app/apiService";
+import { useState, useEffect } from "react";
+import LoadingScreen from "../components/LoadingScreen";
+import { Alert, Chip } from "@mui/material";
 
-const style = {
+const modalStyle = {
   position: "absolute",
+  backgroundColor: "#FFF",
+  padding: "15px",
+  zIndex: "1000",
+  width: "100%",
+  borderRadius: 4,
+};
+const overlayStyle = {
+  position: "fixed",
+  display: "flex",
+  justifyContent: "center",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
+  width: "80%",
+  height: "65%",
+  backgroundColor: "#fff",
+  zIndex: "1000",
+  borderRadius: 4,
+  overflowY: "auto",
 };
 
 export default function JobModal() {
@@ -29,21 +42,27 @@ export default function JobModal() {
     setOpen(false);
     navigate(from, { replace: true });
   };
+
+  const [jobs, setJobs] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const params = useParams();
-  const [job, setJob] = useState();
+
   useEffect(() => {
     if (params.id) {
-      const getJob = async () => {
+      const getJobs = async () => {
+        setLoading(true);
         try {
           const res = await apiService.get(`/jobs/${params.id}`);
-          setJob(res.data);
+          setJobs(res.data);
+          setError("");
         } catch (error) {
           console.log(error);
+          setError(error.message);
         }
+        setLoading(false);
       };
-      getJob();
+      getJobs();
     }
   }, [params]);
 
@@ -54,14 +73,72 @@ export default function JobModal() {
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
-          Job Modal
-        </Typography>
-        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-        </Typography>
-      </Box>
+      {loading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          {error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : (
+            <>
+              <Box sx={overlayStyle}>
+                <Box sx={modalStyle}>
+                  <Typography
+                    sx={{
+                      fontSize: 18,
+                      mb: 2,
+                      borderBottom: 1,
+                      textAlign: "center",
+                      color: "#FC9918",
+                    }}
+                    gutterBottom
+                  >
+                    {jobs.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#2C3333",
+                    }}
+                  >
+                    {jobs.description}
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1 }}>Skill:</Typography>
+                  <Typography>
+                    {jobs.skills.map((skill, index) => (
+                      <Chip
+                        key={index}
+                        label={skill}
+                        sx={{
+                          mr: 1,
+                          mb: 1,
+                          backgroundColor: "#F0534A",
+                          color: "#fff",
+                          fontSize: 12,
+                          height: 28,
+                        }}
+                      />
+                    ))}
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, color: "#2C3333" }}>
+                    City: {jobs.city}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#2C3333",
+                    }}
+                  >
+                    Salary: {jobs.salaryLow} - {jobs.salaryHigh} VNĐ
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, color: "#2C3333" }}>
+                    Posted: {jobs.postedDate}
+                  </Typography>
+                </Box>
+              </Box>
+            </>
+          )}
+        </>
+      )}
     </Modal>
   );
 }
